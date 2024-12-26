@@ -1,0 +1,65 @@
+﻿@page "/login"
+@using Pet.Services
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject ILoginService LoginService
+
+<div class="container mt-5">
+    <h3 class="text-center">Вход</h3>
+
+    <EditForm Model="User" OnValidSubmit="HandleLogin">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="username" class="form-label">Имя пользователя:</label>
+            <InputText id="username" class="form-control" @bind-Value="User.Username" />
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Пароль:</label>
+            <InputText id="password" class="form-control" @bind-Value="User.Password" Type="password" />
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Войти</button>
+    </EditForm>
+
+    <p class="text-center mt-3 text-danger">@Message</p>
+
+    <!-- Ссылка на страницу регистрации -->
+    <div class="text-center mt-3">
+        <span>Нет аккаунта? </span>
+        <NavLink class="text-primary" href="/register">Зарегистрироваться</NavLink>
+    </div>
+</div>
+
+@code {
+    private UserDto User = new();
+    private string Message = "";
+
+    private async Task HandleLogin()
+    {
+        try
+        {
+            var isAuthenticated = await LoginService.Login(User.Username, User.Password);
+            if (isAuthenticated)
+            {
+                Message = "Вход выполнен успешно!";
+                Navigation.NavigateTo("/");
+            }
+            else
+            {
+                Message = "Неверные учетные данные.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Message = $"Ошибка: {ex.Message}";
+        }
+    }
+
+    private class UserDto
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}

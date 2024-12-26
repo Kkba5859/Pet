@@ -1,0 +1,84 @@
+﻿@page "/register"
+@using Pet.Services
+@inject HttpClient Http
+@inject NavigationManager Navigation
+@inject Blazored.LocalStorage.ILocalStorageService LocalStorage
+@inject IRegisterService RegisterService
+
+<div class="container mt-5">
+    <h3 class="text-center">Регистрация</h3>
+
+    <EditForm Model="User" OnValidSubmit="HandleRegister">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="mb-3">
+            <label for="username" class="form-label">Имя пользователя:</label>
+            <InputText id="username" class="form-control" @bind-Value="User.Username" />
+        </div>
+        <div class="mb-3">
+            <label for="password" class="form-label">Пароль:</label>
+            <InputText id="password" class="form-control" @bind-Value="User.Password" Type="password" />
+        </div>
+
+        <button type="submit" class="btn btn-success w-100">Зарегистрироваться</button>
+    </EditForm>
+
+    <!-- Отображение сообщений о статусе регистрации -->
+    <div class="text-center mt-3">
+        @if (IsProcessing)
+        {
+            <p>Пожалуйста, подождите...</p>
+        }
+        else if (!string.IsNullOrEmpty(Message))
+        {
+            <p class="text-danger">@Message</p>
+        }
+    </div>
+
+    <!-- Ссылка для перехода на страницу логина -->
+    <div class="text-center mt-3">
+        <p>Уже зарегистрированы? <a href="/login">Войти</a></p>
+    </div>
+</div>
+
+@code {
+    private UserDto User = new();
+    private string Message = "";
+    private bool IsProcessing = false;
+
+    private async Task HandleRegister()
+    {
+        try
+        {
+            IsProcessing = true;
+            var response = await RegisterService.Register(User.Username, User.Password);
+
+            if (response)
+            {
+                Message = "Регистрация успешна!";
+                Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                Message = "Ошибка регистрации.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Ошибка регистрации: {ex.Message}");
+            Message = $"Ошибка: {ex.Message}";
+        }
+        finally
+        {
+            IsProcessing = false;
+        }
+    }
+
+
+    private class UserDto
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+    }
+}
