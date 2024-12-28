@@ -1,0 +1,53 @@
+﻿@page "/admin-dashboard"
+@using Pet.Services.Admins
+@using Pet.Models
+@inject IAdminDashboardService AdminDashboardService
+
+<h3 class="text-center my-4">Admin Dashboard</h3>
+
+<div class="container">
+    <div class="text-center mb-4">
+        <h4>Welcome, Admin</h4>
+        <button class="btn btn-primary" @onclick="LoadData">Load Data</button>
+    </div>
+
+    <div>
+        @if (users != null && users.Any())
+        {
+            <ul class="list-group">
+                @foreach (var user in users)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        @user.Username
+                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteUser(user.Username)">Delete</button>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No users found.</p>
+        }
+    </div>
+</div>
+
+@code {
+    private List<User> users;
+
+    private async Task LoadData()
+    {
+        users = await AdminDashboardService.GetUsersAsync();
+    }
+
+    private async Task DeleteUser(string username)
+    {
+        if (await AdminDashboardService.DeleteUserAsync(username))
+        {
+            await LoadData(); // Refresh data after successful deletion
+        }
+        else
+        {
+            Console.WriteLine("Failed to delete user.");
+        }
+    }
+}

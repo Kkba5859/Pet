@@ -1,4 +1,4 @@
-﻿namespace Pet.Services
+﻿namespace Pet.Services.Users
 {
     public interface IRegisterService
     {

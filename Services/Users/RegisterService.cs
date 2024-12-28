@@ -1,6 +1,6 @@
 ﻿using System.Net.Http.Json;
 
-namespace Pet.Services
+namespace Pet.Services.Users
 {
     public class RegisterService : IRegisterService
     {

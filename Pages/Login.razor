@@ -1,34 +1,42 @@
 ﻿@page "/login"
-@using Pet.Services
+@using Pet.Services.Users
+@using Pet.Models
 @inject HttpClient Http
 @inject NavigationManager Navigation
 @inject Blazored.LocalStorage.ILocalStorageService LocalStorage
 @inject ILoginService LoginService
 
-<div class="container mt-5">
-    <h3 class="text-center">Вход</h3>
+<h3 class="text-center my-4">Login</h3>
 
-    <EditForm Model="User" OnValidSubmit="HandleLogin">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <EditForm Model="User" OnValidSubmit="HandleLogin">
+                <DataAnnotationsValidator />
+                <ValidationSummary class="alert alert-danger" />
 
-        <div class="mb-3">
-            <label for="username" class="form-label">Имя пользователя:</label>
-            <InputText id="username" class="form-control" @bind-Value="User.Username" />
+                <div class="form-group mb-3">
+                    <label for="username" class="form-label">Username:</label>
+                    <InputText id="username" class="form-control" @bind-Value="User.Username" autocomplete="username" />
+                </div>
+                <div class="form-group mb-3">
+                    <label for="password" class="form-label">Password:</label>
+                    <InputText id="password" class="form-control" @bind-Value="User.Password" type="password" autocomplete="current-password" />
+                </div>
+                <button type="submit" class="btn btn-success w-100">Login</button>
+            </EditForm>
+
+            <div class="text-center mt-3">
+                <p>Don't have an account? <NavLink href="/register">Register</NavLink></p>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Message))
+            {
+                <div class="alert alert-danger text-center mt-3">
+                    @Message
+                </div>
+            }
         </div>
-        <div class="mb-3">
-            <label for="password" class="form-label">Пароль:</label>
-            <InputText id="password" class="form-control" @bind-Value="User.Password" Type="password" />
-        </div>
-        <button type="submit" class="btn btn-primary w-100">Войти</button>
-    </EditForm>
-
-    <p class="text-center mt-3 text-danger">@Message</p>
-
-    <!-- Ссылка на страницу регистрации -->
-    <div class="text-center mt-3">
-        <span>Нет аккаунта? </span>
-        <NavLink class="text-primary" href="/register">Зарегистрироваться</NavLink>
     </div>
 </div>
 
@@ -43,23 +51,19 @@
             var isAuthenticated = await LoginService.Login(User.Username, User.Password);
             if (isAuthenticated)
             {
-                Message = "Вход выполнен успешно!";
+                Message = "Login successful!";
                 Navigation.NavigateTo("/");
             }
             else
             {
-                Message = "Неверные учетные данные.";
+                Message = "Invalid credentials.";
             }
         }
         catch (Exception ex)
         {
-            Message = $"Ошибка: {ex.Message}";
+            Message = $"Error: {ex.Message}";
         }
     }
 
-    private class UserDto
-    {
-        public string Username { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-    }
+    
 }

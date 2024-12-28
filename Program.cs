@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Blazored.LocalStorage;
-using Pet.Services;
+using Pet.Services.Admins;
+using Pet.Services.Users;
 
 namespace Pet
 {
@@ -13,14 +14,23 @@ namespace Pet
             builder.RootComponents.Add<App>("#app");
             builder.RootComponents.Add<HeadOutlet>("head::after");
 
-            // Настройка HttpClient для работы с API
+            // Настройка HttpClient для работы с API PetApi
             builder.Services.AddHttpClient("PetApi", client =>
             {
-                client.BaseAddress = new Uri("http://localhost:5000"); // Убедитесь, что это HTTPS-адрес
+                client.BaseAddress = new Uri("http://localhost:5004"); // Замените на HTTPS, если требуется
             });
 
             builder.Services.AddScoped(sp =>
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient("PetApi"));
+
+            // Настройка HttpClient для работы с API PetAdminApi
+            builder.Services.AddHttpClient("PetAdminApi", client =>
+            {
+                client.BaseAddress = new Uri("http://localhost:5000"); // Замените на корректный адрес
+            });
+
+            builder.Services.AddScoped(sp =>
+                sp.GetRequiredService<IHttpClientFactory>().CreateClient("PetAdminApi"));
 
             // Добавление поддержки LocalStorage
             builder.Services.AddBlazoredLocalStorage();
@@ -31,6 +41,9 @@ namespace Pet
             // Регистрация AuthService
             builder.Services.AddScoped<IRegisterService, RegisterService>();
             builder.Services.AddScoped<ILoginService, LoginService>();
+            builder.Services.AddScoped<IAdminRegisterService, AdminRegisterService>();
+            builder.Services.AddScoped<IAdminLoginService, AdminLoginService>();
+            builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
             await builder.Build().RunAsync();
         }
