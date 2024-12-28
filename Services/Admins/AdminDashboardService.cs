@@ -7,35 +7,62 @@ namespace Pet.Services.Admins
     {
         private readonly HttpClient _httpClient;
         private List<User> _cachedUsers = new();
+        private List<User> _cachedAdmins = new();
 
         public AdminDashboardService(HttpClient httpClient)
         {
             _httpClient = httpClient;
         }
 
+        // Универсальный метод для получения данных и кеширования
+        private async Task<List<User>> FetchAndCacheAsync(string endpoint, List<User> cache)
+        {
+            var result = await _httpClient.GetFromJsonAsync<List<User>>(endpoint) ?? new List<User>();
+            cache.Clear();
+            cache.AddRange(result);
+            return cache;
+        }
+
         // Fetch users and cache the result
         public async Task<List<User>> GetUsersAsync()
         {
-            _cachedUsers = await _httpClient.GetFromJsonAsync<List<User>>("http://localhost:5004/api/AdminDashboard/getUsers") ?? new List<User>();
-            return _cachedUsers;
+            return await FetchAndCacheAsync("http://localhost:5004/api/AdminDashboard/getUsers", _cachedUsers);
         }
 
-        // Delete user and update the cached list
-        public async Task<bool> DeleteUserAsync(string username)
+        // Fetch admins and cache the result
+        public async Task<List<User>> GetAdminsAsync()
         {
-            var response = await _httpClient.DeleteAsync($"http://localhost:5004/api/AdminDashboard/deleteUser/{username}");
+            return await FetchAndCacheAsync("http://localhost:5004/api/AdminDashboard/getAdmins", _cachedAdmins);
+        }
+
+        // Универсальный метод для удаления и обновления кеша
+        private async Task<bool> DeleteAndUpdateCacheAsync(string endpoint, string username, List<User> cache)
+        {
+            var response = await _httpClient.DeleteAsync($"{endpoint}/{username}");
             if (response.IsSuccessStatusCode)
             {
-                _cachedUsers.RemoveAll(user => user.Username == username);
+                cache.RemoveAll(user => user.Username == username);
                 return true;
             }
             return false;
         }
 
-        // Provide cached users without fetching
-        public List<User> GetCachedUsers()
+        // Delete user and update the cached list
+        public async Task<bool> DeleteUserAsync(string username)
         {
-            return _cachedUsers;
+            return await DeleteAndUpdateCacheAsync("http://localhost:5004/api/AdminDashboard/deleteUser", username, _cachedUsers);
         }
+
+        // Delete admin and update the cached list
+        public async Task<bool> DeleteAdminAsync(string username)
+        {
+            return await DeleteAndUpdateCacheAsync("http://localhost:5004/api/AdminDashboard/deleteAdmin", username, _cachedAdmins);
+        }
+
+        // Provide cached users without fetching
+        public List<User> GetCachedUsers() => _cachedUsers;
+
+        // Provide cached admins without fetching
+        public List<User> GetCachedAdmins() => _cachedAdmins;
     }
 }

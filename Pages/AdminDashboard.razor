@@ -8,10 +8,10 @@
 <div class="container">
     <div class="text-center mb-4">
         <h4>Welcome, Admin</h4>
-        <button class="btn btn-primary" @onclick="LoadData">Load Data</button>
     </div>
 
     <div>
+        <h5>Users</h5>
         @if (users != null && users.Any())
         {
             <ul class="list-group">
@@ -29,25 +29,64 @@
             <p>No users found.</p>
         }
     </div>
+
+    <div class="mt-4">
+        <h5>Admins</h5>
+        @if (admins != null && admins.Any())
+        {
+            <ul class="list-group">
+                @foreach (var admin in admins)
+                {
+                    <li class="list-group-item d-flex justify-content-between">
+                        @admin.Username
+                        <button class="btn btn-danger btn-sm" @onclick="() => DeleteAdmin(admin.Username)">Delete</button>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No admins found.</p>
+        }
+    </div>
 </div>
 
 @code {
     private List<User> users;
+    private List<User> admins;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
 
     private async Task LoadData()
     {
         users = await AdminDashboardService.GetUsersAsync();
+        admins = await AdminDashboardService.GetAdminsAsync();
     }
 
     private async Task DeleteUser(string username)
     {
         if (await AdminDashboardService.DeleteUserAsync(username))
         {
-            await LoadData(); // Refresh data after successful deletion
+            await LoadData();
         }
         else
         {
             Console.WriteLine("Failed to delete user.");
+        }
+    }
+
+    private async Task DeleteAdmin(string username)
+    {
+        if (await AdminDashboardService.DeleteAdminAsync(username))
+        {
+            await LoadData();
+        }
+        else
+        {
+            Console.WriteLine("Failed to delete admin.");
         }
     }
 }
