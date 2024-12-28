@@ -1,9 +1,9 @@
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Blazored.LocalStorage;
+using Pet.Repositories;
 using Pet.Services.Admins;
 using Pet.Services.Users;
-using Pet.Repositories;
+using Blazored.LocalStorage;
 
 namespace Pet
 {
@@ -43,13 +43,19 @@ namespace Pet
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
             builder.Services.AddScoped<IRegisterService, RegisterService>();
             builder.Services.AddScoped<ILoginService, LoginService>();
-            //  Registration of AdmiAuthService
+
+            // Регистрация AdmiAuthService
             builder.Services.AddScoped<IAdminAuthRepository, AdminAuthRepository>();
             builder.Services.AddScoped<IAdminRegisterService, AdminRegisterService>();
             builder.Services.AddScoped<IAdminLoginService, AdminLoginService>();
-            // Registration of AdminDashboardService
+
+            // Регистрация AdminDashboardService
             builder.Services.AddScoped<IAdminRepository, AdminRepository>();
             builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+
+            // Регистрация NotificationService как Singleton
+            builder.Services.AddSingleton<INotificationService, NotificationService>();
+            builder.Services.AddSingleton<INotificationRepository, NotificationRepository>();
 
             await builder.Build().RunAsync();
         }
