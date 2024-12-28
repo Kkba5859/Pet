@@ -1,31 +1,20 @@
-﻿using System.Net.Http.Json;
-using Pet.Models;
+﻿using Pet.Models;
+using Pet.Repositories;
 
 namespace Pet.Services.Admins
 {
     public class AdminLoginService : IAdminLoginService
     {
-        private readonly HttpClient _httpClient;
+        private readonly IAdminAuthRepository _repository;
 
-        public AdminLoginService(HttpClient httpClient)
+        public AdminLoginService(IAdminAuthRepository repository)
         {
-            _httpClient = httpClient;
+            _repository = repository;
         }
 
         public async Task<bool> Login(AdminLoginModel model)
         {
-            var response = await _httpClient.PostAsJsonAsync("http://localhost:5004/api/AdminLogin", model);
-
-            if (response.IsSuccessStatusCode)
-            {
-                // Чтение данных с использованием типизированной модели
-                var responseData = await response.Content.ReadFromJsonAsync<ApiResponse>();
-
-                // Проверка успешного сообщения в ответе
-                return responseData?.Message == "Login successful";
-            }
-
-            return false;
+            return await _repository.LoginAdminAsync(model);
         }
     }
 }

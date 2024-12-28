@@ -43,8 +43,12 @@ namespace Pet
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
             builder.Services.AddScoped<IRegisterService, RegisterService>();
             builder.Services.AddScoped<ILoginService, LoginService>();
+            //  Registration of AdmiAuthService
+            builder.Services.AddScoped<IAdminAuthRepository, AdminAuthRepository>();
             builder.Services.AddScoped<IAdminRegisterService, AdminRegisterService>();
             builder.Services.AddScoped<IAdminLoginService, AdminLoginService>();
+            // Registration of AdminDashboardService
+            builder.Services.AddScoped<IAdminRepository, AdminRepository>();
             builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
             await builder.Build().RunAsync();
