@@ -9,6 +9,5 @@ namespace Pet.Services.Admins
         List<User> GetCachedUsers();           // Retrieve cached user list
     }
 
-    // User model to match the structure of the response from the controller
   
 }

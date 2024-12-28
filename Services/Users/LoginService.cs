@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using System.Net.Http.Json;
+using Pet.Models;
 
 namespace Pet.Services.Users
 {
@@ -63,9 +64,6 @@ namespace Pet.Services.Users
             }
         }
 
-        public class TokenResponse
-        {
-            public string? Token { get; set; }
-        }
+        
     }
 }
