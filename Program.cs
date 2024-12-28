@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Blazored.LocalStorage;
 using Pet.Services.Admins;
 using Pet.Services.Users;
+using Pet.Repositories;
 
 namespace Pet
 {
@@ -39,6 +40,7 @@ namespace Pet
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
             // Регистрация AuthService
+            builder.Services.AddScoped<IAuthRepository, AuthRepository>();
             builder.Services.AddScoped<IRegisterService, RegisterService>();
             builder.Services.AddScoped<ILoginService, LoginService>();
             builder.Services.AddScoped<IAdminRegisterService, AdminRegisterService>();

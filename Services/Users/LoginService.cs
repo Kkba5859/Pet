@@ -1,48 +1,32 @@
 ﻿using Blazored.LocalStorage;
-using System.Net.Http.Json;
-using Pet.Models;
+using Pet.Repositories;
 
 namespace Pet.Services.Users
 {
     public class LoginService : ILoginService
     {
-        private readonly HttpClient _http;
+        private readonly IAuthRepository _authRepository;
         private readonly ILocalStorageService _localStorage;
+        private readonly HttpClient _http;
 
-        public LoginService(HttpClient http, ILocalStorageService localStorage)
+        public LoginService(IAuthRepository authRepository, ILocalStorageService localStorage, HttpClient http)
         {
-            _http = http;
+            _authRepository = authRepository;
             _localStorage = localStorage;
+            _http = http;
         }
 
         public async Task<bool> Login(string username, string password)
         {
-            var loginDto = new { Username = username, Password = password };
-            try
+            var token = await _authRepository.Login(username, password);
+            if (!string.IsNullOrEmpty(token))
             {
-                var response = await _http.PostAsJsonAsync("http://localhost:5000/api/Auth/login", loginDto);
-                if (response.IsSuccessStatusCode)
-                {
-                    var result = await response.Content.ReadFromJsonAsync<TokenResponse>();
-                    if (result?.Token != null)
-                    {
-                        await _localStorage.SetItemAsync("authToken", result.Token);
-
-                        _http.DefaultRequestHeaders.Authorization =
-                            new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", result.Token);
-
-                        return true;
-                    }
-                }
-                var errorMessage = await response.Content.ReadAsStringAsync();
-                Console.WriteLine($"Ошибка входа: {errorMessage}");
-                return false;
+                await _localStorage.SetItemAsync("authToken", token);
+                _http.DefaultRequestHeaders.Authorization =
+                    new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);
+                return true;
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Ошибка входа: {ex.Message}");
-                return false;
-            }
+            return false;
         }
 
         public async Task Logout()
@@ -63,7 +47,5 @@ namespace Pet.Services.Users
                 return null;
             }
         }
-
-        
     }
 }
