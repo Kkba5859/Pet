@@ -52,7 +52,8 @@
             if (isAuthenticated)
             {
                 Message = "Login successful!";
-                Navigation.NavigateTo("/");
+                // Перезагрузка страницы после успешного входа
+                Navigation.NavigateTo("/", forceLoad: true);
             }
             else
             {
@@ -64,6 +65,4 @@
             Message = $"Error: {ex.Message}";
         }
     }
-
-    
 }

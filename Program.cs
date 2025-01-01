@@ -43,6 +43,10 @@ namespace Pet
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
             builder.Services.AddScoped<IRegisterService, RegisterService>();
             builder.Services.AddScoped<ILoginService, LoginService>();
+            builder.Services.AddScoped<ILogoutService, LogoutService>();
+            builder.Services.AddScoped<IAuthStateService, AuthStateService>();
+
+
 
             // Регистрация AdmiAuthService
             builder.Services.AddScoped<IAdminAuthRepository, AdminAuthRepository>();

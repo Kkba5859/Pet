@@ -48,5 +48,26 @@ namespace Pet.Repositories
                 return false;
             }
         }
+
+        public async Task<bool> Logout(string username)
+        {
+            try
+            {
+                var response = await _http.PostAsJsonAsync("http://localhost:5000/api/Auth/logout", new { Username = username });
+                if (response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"Пользователь {username} успешно вышел из системы.");
+                    return true;
+                }
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Ошибка выхода: {errorMessage}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка выхода: {ex.Message}");
+                return false;
+            }
+        }
     }
 }

@@ -1,4 +1,9 @@
 ﻿@inherits LayoutComponentBase
+@using Pet.Services.Users
+@inject IAuthStateService AuthStateService
+@inject NavigationManager NavigationManager
+@inject ILogoutService LogoutService
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -6,7 +11,9 @@
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <button @onclick="HandleAuthAction" class="btn btn-primary">
+                @buttonText
+            </button>
         </div>
 
         <article class="content px-4">
@@ -14,3 +21,51 @@
         </article>
     </main>
 </div>
+
+@code {
+    private string buttonText = "Login";
+
+    protected override void OnInitialized()
+    {
+        // Подписка на событие изменения состояния
+        AuthStateService.OnStateChanged += UpdateAuthState;
+
+        // Инициализация текущего состояния
+        UpdateAuthState();
+    }
+
+    private void UpdateAuthState()
+    {
+        // Обновляем текст кнопки в зависимости от состояния
+        buttonText = AuthStateService.IsLoggedIn ? "Logout" : "Login";
+        InvokeAsync(StateHasChanged); // Асинхронно обновляем UI
+    }
+
+    private async Task HandleAuthAction()
+    {
+        if (AuthStateService.IsLoggedIn)
+        {
+            // Если пользователь залогинен, выполняем логаут
+            var logoutSuccess = await LogoutService.Logout(AuthStateService.Username);
+            if (logoutSuccess)
+            {
+                NavigationManager.NavigateTo("/", true); // Перезагрузка страницы
+            }
+            else
+            {
+                Console.WriteLine("Ошибка при выходе.");
+            }
+        }
+        else
+        {
+            // Если пользователь не залогинен, перенаправляем на страницу входа
+            NavigationManager.NavigateTo("/login");
+        }
+    }
+
+    public void Dispose()
+    {
+        // Отписываемся от события при уничтожении компонента
+        AuthStateService.OnStateChanged -= UpdateAuthState;
+    }
+}
